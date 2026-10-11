@@ -8,5 +8,8 @@ services:
   renderer:
     image: starloom-eink:e2e
     build: ..
+    environment:
+      STARLOOM_URL: http://starloom:8080
+      STARLOOM_API_KEY: unused
     ports:
       - "18081:8080"

@@ -14,6 +14,8 @@ docker run -p 8080:8080 starloom-eink
 | `GET /healthz` | `ok` |
 | `GET /test.png` | Six labelled color bars for checking the panel |
 
+The E1002 showed all six `/test.png` colors as distinct on 2026-10-11.
+
 ## Develop
 
 ```sh

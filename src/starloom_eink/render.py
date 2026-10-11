@@ -1,4 +1,7 @@
-from datetime import datetime
+import argparse
+import json
+import sys
+from datetime import UTC, datetime
 from functools import cache
 from importlib.resources import files
 from zoneinfo import ZoneInfo
@@ -124,3 +127,24 @@ def render(
         font=font(14), fill=PALETTE["black"], anchor="rm",
     )
     return snap_to_palette(img)
+
+
+def _stamp(value: str | None) -> datetime | None:
+    return datetime.fromisoformat(value) if value else None
+
+
+def main(argv: list[str]) -> None:
+    parser = argparse.ArgumentParser(prog="python -m starloom_eink.render")
+    parser.add_argument("--demo", required=True, help="fixture JSON")
+    parser.add_argument("out", help="output PNG")
+    args = parser.parse_args(argv)
+    with open(args.demo) as f:
+        children = [
+            ChildStats(c["name"], c["balance"], _stamp(c["last_award"]), _stamp(c["last_spend"]))
+            for c in json.load(f)
+        ]
+    render(children, datetime.now(UTC)).save(args.out, format="PNG")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

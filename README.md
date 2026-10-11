@@ -20,7 +20,10 @@ docker run -p 8080:8080 starloom-eink
 pip install -e '.[test]'
 pytest
 python -m starloom_eink.testpattern out.png
+python -m starloom_eink.render --demo tests/fixtures/demo.json out.png
 ```
+
+The demo fixture is a JSON list of `{"name", "balance", "last_award", "last_spend"}`; timestamps are ISO-8601 with a zone, or `null`.
 
 ## End-to-end tests
 

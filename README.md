@@ -33,3 +33,11 @@ docker compose -f e2e/compose.yaml down -v
 ```
 
 Without those variables the e2e tests are skipped.
+
+## Live contract test
+
+`tests/test_live_contract.py` calls a real StarLoom instance with a read-only API key and checks the response shape. It is skipped unless both variables are set. Run it from a host that can reach the instance:
+
+```sh
+STARLOOM_URL=https://stars.example STARLOOM_API_KEY=... pytest tests/test_live_contract.py
+```

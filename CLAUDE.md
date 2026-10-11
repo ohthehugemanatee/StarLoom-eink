@@ -14,10 +14,7 @@ IMPORTANT: every change follows this workflow; do not skip steps.
 - **Constrain scope; ask before straying.** Smallest diff that satisfies the spec, no adjacent refactors. Do not modify files outside the Issue's declared scope without asking. If the operator expands scope mid-flight, name the expansion, propose it as a new Issue with its place in the graph, and finish the original.
 - **Prefer upstream components over scripted glue.** 
 - **Run tests before commit; fix failures rather than commit around them.** Never commit with known-failing tests, never silence a test or add to an exception file to make CI green, never `--no-verify`.
-- **A change carries its doc fix.** Always check the `*.md` in the affected directory and the repo root; a doc that needs updating is a bug, and the fix ships in the same PR. "Needs updating" means the existing text is now factually wrong, or contradicts the new behavior. It does not mean the topic could carry more explanation, more operational detail, or a note on how the bug was found; those go in the PR description if anywhere.
-- **Outside `adr/`, docs describe the current implementation only.** Explain reasoning only where an aspect would otherwise be misread. Do not narrate how the current state was reached.
-- **Drafts stay out of the codebase.** With squash-merge a branch's intermediate states are not history. If a PR took three attempts to pass, only the third merged; the other two belong in the Issue or PR thread, nowhere in the repo.
-- **An ADR records a decision that changed the repo.** Write them in `/adr`.
+- **No scheduled checkins.** The integration will alert you on changes in PRs. Trust it. The operator will ping you if it doesn't. 
 
 ## Coding behavior
 
@@ -36,6 +33,9 @@ IMPORTANT: every change follows this workflow; do not skip steps.
 
 ## Documentation style
 
-Terse, operator-first; No marketing prose, no emojis, no "in conclusion" sections.
-
-Run every piece of prose through the `avoid-ai-writing` skill (voice `technical`, context `docs`) before it ships: It is part of writing the prose, never its own Issue. The skill lives in the operator's Claude profile; an agent without it reads <https://raw.githubusercontent.com/conorbronsdon/avoid-ai-writing/refs/heads/main/SKILL.md>.
+- **Documentation style is terse, operator-first.** No marketing prose, no emojis, no "in conclusion" sections.
+- **Run every piece of prose through the `avoid-ai-writing` skill** (voice `technical`, context `docs`) before it merges. The skill lives in the operator's Claude profile; an agent without it reads <https://raw.githubusercontent.com/conorbronsdon/avoid-ai-writing/refs/heads/main/SKILL.md>.
+- **A change carries its doc fix.** Always check the `*.md` in the affected directory and the repo root; a doc that needs updating is a bug, and the fix ships in the same PR. "Needs updating" means the existing text is now factually wrong, or contradicts the new behavior. It does not mean the topic could carry more explanation, more operational detail, or a note on how the bug was found; those go in the PR description if anywhere.
+- **Outside `adr/`, docs describe the current implementation only.** Explain reasoning only where an aspect would otherwise be misread. Do not narrate how the current state was reached.
+- **ADRs only record decisions that changed code.** A changed configuration does not merit an ADR. 
+- **Drafts stay out of the codebase, so they stay out of the documentation.** With squash-merge a branch's intermediate states are not history. If a PR took three attempts to pass, only the third merged and gets documented in the codebase. The other two may be documented in the Issue or PR thread, but nowhere in the repo.

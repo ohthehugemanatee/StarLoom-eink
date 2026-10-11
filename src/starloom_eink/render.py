@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import cache
 from importlib.resources import files
+from zoneinfo import ZoneInfo
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -35,6 +36,21 @@ def card_box(i: int, n: int) -> tuple[int, int, int, int]:
     return i * WIDTH // n, 0, (i + 1) * WIDTH // n, HEIGHT - FOOTER
 
 
+def _date(stamp: datetime | None, tz: ZoneInfo, date_format: str) -> str:
+    return stamp.astimezone(tz).strftime(date_format) if stamp else "-"
+
+
+def card_footer(child: ChildStats, tz: ZoneInfo, date_format: str) -> tuple[str, str]:
+    return (
+        f"Added {_date(child.last_award, tz, date_format)}",
+        f"Spent {_date(child.last_spend, tz, date_format)}",
+    )
+
+
+def updated_label(now: datetime, tz: ZoneInfo, date_format: str) -> str:
+    return f"Updated {now.astimezone(tz).strftime(date_format + ' %H:%M')}"
+
+
 def _digits_area(h: int) -> tuple[int, int]:
     return BORDER + BAND + STAR + 3 * PAD, h - BORDER - CARD_FOOTER - PAD
 
@@ -50,7 +66,9 @@ def _digit_size(text: str, w: int, h: int) -> int:
     return size
 
 
-def _card(child: ChildStats, color: str, box: tuple[int, int], size: int) -> Image.Image:
+def _card(
+    child: ChildStats, color: str, box: tuple[int, int], size: int, footer: tuple[str, str]
+) -> Image.Image:
     w, h = box
     img = Image.new("RGB", box, PALETTE["white"])
     draw = ImageDraw.Draw(img)
@@ -72,12 +90,18 @@ def _card(child: ChildStats, color: str, box: tuple[int, int], size: int) -> Ima
         (w // 2, (top + bottom) // 2), str(child.balance), font=font(size, bold=True),
         fill=PALETTE["black"], anchor="mm",
     )
+    small = font(16)
+    for line, text in enumerate(footer):
+        y = h - BORDER - CARD_FOOTER + PAD + line * 20
+        draw.text((BORDER + PAD, y), fit(text, small, w - 2 * (BORDER + PAD)), font=small, fill=PALETTE["black"])
     return img
 
 
 def render(
     children: list[ChildStats],
     now: datetime,
+    tz: ZoneInfo = ZoneInfo("Europe/Berlin"),
+    date_format: str = "%d.%m.",
     colors: list[str] | None = None,
 ) -> Image.Image:
     n = len(children)
@@ -91,5 +115,12 @@ def render(
         for c, (x0, y0, x1, y1) in zip(children, boxes)
     )
     for child, color, (x0, y0, x1, y1) in zip(children, colors, boxes):
-        img.paste(_card(child, color, (x1 - x0, y1 - y0), size), (x0, y0))
+        footer = card_footer(child, tz, date_format)
+        img.paste(_card(child, color, (x1 - x0, y1 - y0), size, footer), (x0, y0))
+    draw = ImageDraw.Draw(img)
+    draw.fontmode = "1"
+    draw.text(
+        (WIDTH - PAD, HEIGHT - FOOTER // 2), updated_label(now, tz, date_format),
+        font=font(14), fill=PALETTE["black"], anchor="rm",
+    )
     return snap_to_palette(img)

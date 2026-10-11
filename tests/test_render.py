@@ -1,10 +1,21 @@
 from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
 
 import pytest
 from PIL import ImageFont
 
 from starloom_eink.palette import PALETTE
-from starloom_eink.render import BAND, BORDER, CARD_FOOTER, card_box, fit, font, render
+from starloom_eink.render import (
+    BAND,
+    BORDER,
+    CARD_FOOTER,
+    card_box,
+    card_footer,
+    fit,
+    font,
+    render,
+    updated_label,
+)
 from starloom_eink.starloom import ChildStats
 
 NOW = datetime(2026, 10, 11, 9, 46, tzinfo=UTC)
@@ -127,3 +138,34 @@ def test_totals_share_one_digit_size():
         top, bottom = digits.getbbox()[1::2]
         heights.append(bottom - top)
     assert abs(heights[0] - heights[1]) <= 8
+
+
+BERLIN = ZoneInfo("Europe/Berlin")
+
+
+def test_card_footer_converts_to_local_date():
+    child = ChildStats("A", 1, datetime(2026, 10, 10, 23, 30, tzinfo=UTC), None)
+    assert card_footer(child, BERLIN, "%d.%m.") == ("Added 11.10.", "Spent -")
+
+
+def test_card_footer_custom_format():
+    stamp = datetime(2026, 10, 8, 7, 5, tzinfo=UTC)
+    child = ChildStats("A", 1, stamp, stamp)
+    assert card_footer(child, BERLIN, "%d/%m") == ("Added 08/10", "Spent 08/10")
+
+
+def test_updated_label_local_time():
+    assert updated_label(NOW, BERLIN, "%d.%m.") == "Updated 11.10. 11:46"
+
+
+def test_dates_drawn_inside_cards_and_footer():
+    stamp = datetime(2026, 10, 8, 7, 5, tzinfo=UTC)
+    children = [ChildStats(f"K{i}", 3, stamp, stamp) for i in range(4)]
+    img = render(children, NOW)
+    for i in range(4):
+        box = card_box(i, 4)
+        assert border_intact(img, box)
+        x0, _, x1, y1 = box
+        zone = (x0 + BORDER, y1 - BORDER - CARD_FOOTER, x1 - BORDER, y1 - BORDER)
+        assert PALETTE["black"] in colors(img, zone)
+    assert PALETTE["black"] in colors(img, (400, 456, 800, 480))

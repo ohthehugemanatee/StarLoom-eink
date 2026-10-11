@@ -1,0 +1,12 @@
+services:
+  starloom:
+    image: ghcr.io/jamesread/starloom:1.10.0
+    environment:
+      STARAPP_SECURE_COOKIES: "false"
+    ports:
+      - "18080:8080"
+  renderer:
+    image: starloom-eink:e2e
+    build: ..
+    ports:
+      - "18081:8080"

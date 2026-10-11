@@ -21,3 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t starloom-eink:ci .
+
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      E2E_STARLOOM_URL: http://localhost:18080
+      E2E_RENDERER_URL: http://localhost:18081
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -e '.[test]'
+      - run: docker compose -f e2e/compose.yaml up -d --build
+      - run: pytest -m e2e
+      - if: failure()
+        run: docker compose -f e2e/compose.yaml logs
+      - if: always()
+        run: docker compose -f e2e/compose.yaml down -v

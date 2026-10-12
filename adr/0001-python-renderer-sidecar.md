@@ -1,6 +1,6 @@
 # 0001: Python renderer sidecar for the E1002 panel
 
-Status: accepted, 2026-10-11
+Status: superseded by 0002 (accepted 2026-10-11)
 
 ## Context
 

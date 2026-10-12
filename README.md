@@ -1,6 +1,6 @@
 # StarLoom-eink
 
-Renders an 800x480 six-color PNG for a Seeed reTerminal E1002 (Spectra 6) from a self-hosted [StarLoom](https://github.com/jamesread/StarLoom) instance. The panel fetches the image over plain HTTP with ESPHome `online_image`.
+Renders an 800x480 six-color PNG for a Seeed reTerminal E1002 (Spectra 6) from a self-hosted [StarLoom](https://github.com/jamesread/StarLoom) instance. The panel fetches the image with ESPHome `online_image`. The service speaks plain HTTP and expects a reverse proxy to terminate TLS.
 
 ## Run
 

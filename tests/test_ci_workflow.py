@@ -38,7 +38,7 @@ def test_publish_logs_in_with_the_workflow_token():
     assert login["password"] == "${{ secrets.GITHUB_TOKEN }}"
 
 
-def test_publish_pushes_multi_arch_tagged_image():
+def test_publish_pushes_tagged_amd64_image():
     job = _publish()
     meta = _step(job, "docker/metadata-action")["with"]
     assert meta["images"] == IMAGE
@@ -46,5 +46,5 @@ def test_publish_pushes_multi_arch_tagged_image():
     assert "latest" in meta["tags"]
     build = _step(job, "docker/build-push-action")["with"]
     assert build["push"] is True
-    assert set(build["platforms"].split(",")) == {"linux/amd64", "linux/arm64"}
+    assert build["platforms"] == "linux/amd64"
     assert "steps.meta.outputs.tags" in build["tags"]

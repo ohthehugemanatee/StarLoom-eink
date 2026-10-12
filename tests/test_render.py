@@ -169,3 +169,34 @@ def test_dates_drawn_inside_cards_and_footer():
         zone = (x0 + BORDER, y1 - BORDER - CARD_FOOTER, x1 - BORDER, y1 - BORDER)
         assert PALETTE["black"] in colors(img, zone)
     assert PALETTE["black"] in colors(img, (400, 456, 800, 480))
+
+
+def star_rows(img, i, n, color):
+    x0, y0, x1, y1 = body(i, n)
+    rows = [
+        y
+        for y in range(y0, y1)
+        for x in range(x0, x1)
+        if img.getpixel((x, y)) == PALETTE[color]
+    ]
+    return min(rows), max(rows)
+
+
+def test_star_is_big():
+    img = render(kids(4), NOW)
+    top, bottom = star_rows(img, 0, 4, "blue")
+    assert bottom - top >= 80
+
+
+def test_digits_have_margin():
+    children = [ChildStats(f"K{i}", 99999, None, None) for i in range(4)]
+    img = render(children, NOW)
+    margin = 24
+    for i in range(4):
+        x0, y0, x1, y1 = body(i, 4)
+        _, star_bottom = star_rows(img, i, 4, DEFAULT[i])
+        region = img.crop((x0, star_bottom + 3, x1, y1))
+        ink = region.point(lambda v: 255 if v == 0 else 0).convert("L")
+        left, top, right, bottom = ink.getbbox()
+        assert left >= margin and region.width - right >= margin, i
+        assert top >= margin and region.height - bottom >= margin, i

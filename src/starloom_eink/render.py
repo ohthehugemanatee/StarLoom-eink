@@ -17,7 +17,8 @@ BORDER = 4
 BAND = 64
 CARD_FOOTER = 48
 PAD = 8
-STAR = 44
+STAR = 128
+DIGIT_MARGIN = 24
 DEFAULT_COLORS = ["blue", "red", "green", "yellow"]
 
 
@@ -54,8 +55,12 @@ def updated_label(now: datetime, tz: ZoneInfo, date_format: str) -> str:
     return f"Updated {now.astimezone(tz).strftime(date_format + ' %H:%M')}"
 
 
+def _star_bottom() -> int:
+    return BORDER + BAND + PAD + font(STAR, bold=True).getbbox("★", anchor="mt")[3] + 2
+
+
 def _digits_area(h: int) -> tuple[int, int]:
-    return BORDER + BAND + STAR + 3 * PAD, h - BORDER - CARD_FOOTER - PAD
+    return _star_bottom() + DIGIT_MARGIN, h - BORDER - CARD_FOOTER - DIGIT_MARGIN
 
 
 def _digit_size(text: str, w: int, h: int) -> int:
@@ -63,7 +68,7 @@ def _digit_size(text: str, w: int, h: int) -> int:
     size = bottom - top
     while size > 8:
         l, t, r, b = font(size, bold=True).getbbox(text, anchor="mm")
-        if r - l <= w - 2 * (BORDER + PAD) and b - t <= bottom - top:
+        if r - l <= w - 2 * (BORDER + DIGIT_MARGIN) and b - t <= bottom - top:
             return size
         size -= 4
     return size

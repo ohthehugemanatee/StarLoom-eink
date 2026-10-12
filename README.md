@@ -25,7 +25,7 @@ The service does not start without the two required variables.
 | `GET /stars.png` | The panel image, rendered on each request. 503 if StarLoom is unreachable or returns an error |
 | `GET /test.png` | Six labelled color bars for checking the panel |
 
-The E1002 showed all six `/test.png` colors as distinct on 2026-10-11.
+The E1002 showed all six `/test.png` colors as distinct on 2026-10-11, fetched with ESPHome `online_image` using `format: PNG` and `type: RGB`.
 
 ## Develop
 

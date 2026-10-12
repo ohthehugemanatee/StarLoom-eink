@@ -9,6 +9,8 @@ docker build -t starloom-eink .
 docker run -p 8080:8080 -e STARLOOM_URL=https://stars.example -e STARLOOM_API_KEY=... starloom-eink
 ```
 
+CI publishes `ghcr.io/ohthehugemanatee/starloom-eink` (`linux/amd64`, `linux/arm64`) on every push to `main`, tagged `latest` and `sha-<7 char commit>`.
+
 | Variable | Default | Meaning |
 |---|---|---|
 | `STARLOOM_URL` | required | StarLoom base URL |

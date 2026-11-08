@@ -34,6 +34,7 @@ Request `{}`. Response fields used:
 | `children[].member.starColor` | `#RRGGBB` from StarLoom's own palette; not one of the six panel colors |
 | `children[].balance` | Sum of all ledger amounts (awards positive, revokes and redeems negative). Absent when 0 |
 | `children[].lastAward` | Newest `award` ledger entry; absent if none |
+| `children[].lastAward.note` | Free text the parent entered with the award; absent when empty |
 
 ## ListLedger
 

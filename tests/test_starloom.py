@@ -23,7 +23,7 @@ SUMMARY = {
         {
             "member": member(2, "Alice"),
             "balance": 6,
-            "lastAward": entry("award", 3, "2026-10-10 18:30:00"),
+            "lastAward": {**entry("award", 3, "2026-10-10 18:30:00"), "note": "Chore: Make bed"},
         },
         {"member": member(3, "Bob")},
         {"member": member(1, "admin", role="parent"), "balance": 9},
@@ -64,6 +64,7 @@ def test_children_only_with_stats():
             balance=6,
             last_award=datetime(2026, 10, 10, 18, 30, tzinfo=UTC),
             last_spend=datetime(2026, 10, 8, 7, 5, tzinfo=UTC),
+            last_award_note="Chore: Make bed",
         ),
         ChildStats(name="Bob", balance=0, last_award=None, last_spend=None),
     ]
@@ -98,3 +99,15 @@ def test_http_error_raises_without_key(failing):
     assert failing in str(exc.value)
     assert "403" in str(exc.value)
     assert KEY not in str(exc.value)
+
+
+def test_award_without_note_gives_empty_note():
+    summary = {"children": [{"member": member(2, "Alice"), "lastAward": entry("award", 1, "2026-10-10 18:30:00")}]}
+
+    def handler(request):
+        if request.url.path.endswith("GetParentHomeSummary"):
+            return httpx.Response(200, json=summary)
+        return httpx.Response(200, json={"entries": []})
+
+    [child] = fetch_children(BASE, KEY, client=client_for(handler))
+    assert child.last_award_note == ""

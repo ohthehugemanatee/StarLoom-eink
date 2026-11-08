@@ -73,8 +73,8 @@ def seeded(starloom_url):
     return {
         "api_key": key,
         "children": [
-            {"id": alice, "name": "Alice", "balance": 6, "awarded": True, "spent": True},
-            {"id": bob, "name": "Bob", "balance": 4, "awarded": True, "spent": False},
-            {"id": long, "name": "Maximiliane-Charlotte Longname", "balance": 0, "awarded": False, "spent": False},
+            {"id": alice, "name": "Alice", "balance": 6, "awarded": True, "spent": True, "note": "reading"},
+            {"id": bob, "name": "Bob", "balance": 4, "awarded": True, "spent": False, "note": "chores"},
+            {"id": long, "name": "Maximiliane-Charlotte Longname", "balance": 0, "awarded": False, "spent": False, "note": ""},
         ],
     }

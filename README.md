@@ -38,7 +38,7 @@ python -m starloom_eink.testpattern out.png
 python -m starloom_eink.render --demo tests/fixtures/demo.json out.png
 ```
 
-The demo fixture is a JSON list of `{"name", "balance", "last_award", "last_spend"}`; timestamps are ISO-8601 with a zone, or `null`.
+The demo fixture is a JSON list of `{"name", "balance", "last_award", "last_spend", "last_award_note"}`; timestamps are ISO-8601 with a zone, or `null`. `last_award_note` is optional.
 
 ## End-to-end tests
 

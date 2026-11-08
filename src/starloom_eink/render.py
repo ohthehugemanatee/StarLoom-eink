@@ -19,6 +19,7 @@ CARD_FOOTER = 48
 PAD = 8
 STAR = 128
 DIGIT_MARGIN = 24
+NOTE = 40
 DEFAULT_COLORS = ["blue", "red", "green", "yellow"]
 
 
@@ -34,6 +35,19 @@ def fit(text: str, f: ImageFont.FreeTypeFont, width: int) -> str:
     while text and f.getlength(text + "…") > width:
         text = text[:-1]
     return text + "…"
+
+
+def note_lines(text: str, f: ImageFont.FreeTypeFont, width: int, max_lines: int = 2) -> list[str]:
+    words = text.split()
+    lines = []
+    while words and len(lines) < max_lines:
+        line = words.pop(0)
+        while words and f.getlength(f"{line} {words[0]}") <= width:
+            line += " " + words.pop(0)
+        lines.append(line)
+    if words:
+        lines[-1] = fit(f"{lines[-1]} {' '.join(words)}", f, width)
+    return [fit(line, f, width) for line in lines]
 
 
 def card_box(i: int, n: int) -> tuple[int, int, int, int]:
@@ -60,7 +74,7 @@ def _star_bottom() -> int:
 
 
 def _digits_area(h: int) -> tuple[int, int]:
-    return _star_bottom() + DIGIT_MARGIN, h - BORDER - CARD_FOOTER - DIGIT_MARGIN
+    return _star_bottom() + DIGIT_MARGIN, h - BORDER - CARD_FOOTER - NOTE - DIGIT_MARGIN
 
 
 def _digit_size(text: str, w: int, h: int) -> int:
@@ -99,6 +113,9 @@ def _card(
         fill=PALETTE["black"], anchor="mm",
     )
     small = font(16)
+    note_top = h - BORDER - CARD_FOOTER - NOTE
+    for line, text in enumerate(note_lines(child.last_award_note, small, w - 2 * (BORDER + PAD))):
+        draw.text((w // 2, note_top + line * 20), text, font=small, fill=PALETTE["black"], anchor="mt")
     for line, text in enumerate(footer):
         y = h - BORDER - CARD_FOOTER + PAD + line * 20
         draw.text((BORDER + PAD, y), fit(text, small, w - 2 * (BORDER + PAD)), font=small, fill=PALETTE["black"])
@@ -145,7 +162,10 @@ def main(argv: list[str]) -> None:
     args = parser.parse_args(argv)
     with open(args.demo) as f:
         children = [
-            ChildStats(c["name"], c["balance"], _stamp(c["last_award"]), _stamp(c["last_spend"]))
+            ChildStats(
+                c["name"], c["balance"], _stamp(c["last_award"]), _stamp(c["last_spend"]),
+                c.get("last_award_note", ""),
+            )
             for c in json.load(f)
         ]
     render(children, datetime.now(UTC)).save(args.out, format="PNG")

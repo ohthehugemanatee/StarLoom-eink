@@ -17,6 +17,7 @@ class ChildStats:
     balance: int
     last_award: datetime | None
     last_spend: datetime | None
+    last_award_note: str = ""
 
 
 def _timestamp(value: str | None) -> datetime | None:
@@ -44,12 +45,14 @@ def fetch_children(base_url: str, api_key: str, client: httpx.Client | None = No
             continue
         ledger = call("ListLedger", {"memberId": member["id"], "limit": LEDGER_LIMIT})
         spend = next((e for e in ledger.get("entries", []) if e.get("entryType") == "redeem"), None)
+        award = summary.get("lastAward") or {}
         children.append(
             ChildStats(
                 name=member.get("displayName", ""),
                 balance=summary.get("balance", 0),
-                last_award=_timestamp((summary.get("lastAward") or {}).get("createdAt")),
+                last_award=_timestamp(award.get("createdAt")),
                 last_spend=_timestamp(spend and spend.get("createdAt")),
+                last_award_note=award.get("note", ""),
             )
         )
     return children

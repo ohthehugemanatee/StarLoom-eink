@@ -20,3 +20,4 @@ def test_fetch_children_matches_seed(starloom_url, seeded):
         assert got.balance == expected["balance"]
         assert recent(got.last_award) if expected["awarded"] else got.last_award is None
         assert recent(got.last_spend) if expected["spent"] else got.last_spend is None
+        assert got.last_award_note == expected["note"]

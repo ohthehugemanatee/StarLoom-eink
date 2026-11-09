@@ -9,10 +9,12 @@ from starloom_eink.render import (
     BAND,
     BORDER,
     CARD_FOOTER,
+    NOTE,
     card_box,
     card_footer,
     fit,
     font,
+    note_lines,
     render,
     updated_label,
 )
@@ -200,3 +202,42 @@ def test_digits_have_margin():
         left, top, right, bottom = ink.getbbox()
         assert left >= margin and region.width - right >= margin, i
         assert top >= margin and region.height - bottom >= margin, i
+
+
+def test_note_lines_short_note_is_one_line():
+    assert note_lines("Chore: Make bed", font(16), 176) == ["Chore: Make bed"]
+
+
+def test_note_lines_long_note_wraps_to_two_with_ellipsis():
+    f = font(16)
+    lines = note_lines("Helped carry the groceries up all four flights of stairs without complaining", f, 176)
+    assert len(lines) == 2
+    assert lines[1].endswith("…")
+    assert all(f.getlength(line) <= 176 for line in lines)
+
+
+def test_note_lines_long_word_and_empty():
+    f = font(16)
+    [line] = note_lines("Donaudampfschifffahrtsgesellschaftskapitän", f, 176)
+    assert line.endswith("…") and f.getlength(line) <= 176
+    assert note_lines("", f, 176) == []
+
+
+def note_zone(i, n):
+    x0, _, x1, y1 = card_box(i, n)
+    bottom = y1 - BORDER - CARD_FOOTER
+    return x0 + BORDER, bottom - NOTE, x1 - BORDER, bottom
+
+
+def test_note_drawn_only_when_present():
+    children = [ChildStats("A", 3, NOW, None, "Chore: Make bed"), ChildStats("B", 3, NOW, None)]
+    img = render(children, NOW)
+    assert PALETTE["black"] in colors(img, note_zone(0, 2))
+    assert PALETTE["black"] not in colors(img, note_zone(1, 2))
+
+
+def test_long_notes_stay_inside_cards():
+    children = [ChildStats(f"K{i}", 99999, NOW, NOW, "word " * 40) for i in range(4)]
+    img = render(children, NOW)
+    for i in range(4):
+        assert border_intact(img, card_box(i, 4))
